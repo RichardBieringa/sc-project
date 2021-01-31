@@ -63,16 +63,87 @@ $ gcloud beta container \
     --enable-shielded-nodes
 ```
 
-# Installing Prometheus
-helm install sc-prometheus prometheus-community/kube-prometheus-stack --namespace=prometheus
+## Installing Istio
+Create a namespace istio-system for Istio components:
+```sh
+$ kubectl create namespace istio-system
+```
 
-# Installing Cert-Manager
-helm install \
+Install the Istio base chart which contains cluster-wide resources used by the Istio control plane:
+```sh
+$ helm install -n istio-system istio-base manifests/charts/base
+```
+
+Install the Istio discovery chart which deploys the istiod service:
+```sh
+$ helm install --namespace istio-system istiod manifests/charts/istio-control/istio-discovery \
+    --set global.hub="docker.io/istio" --set global.tag="1.8.2"
+```
+
+Install the Istio ingress gateway chart which contains the ingress gateway components:
+```sh
+$ helm install --namespace istio-system istio-ingress manifests/charts/gateways/istio-ingress \
+    --set global.hub="docker.io/istio" --set global.tag="1.8.2"
+```
+
+Verify installation:
+```sh
+$ kubectl get pods -n istio-system
+```
+
+
+kubectl create namespace istio-system
+
+## Installing Prometheus
+Add the required Helm repository
+```sh
+$ helm repo add https://prometheus-community.github.io/helm-charts
+```
+
+Installing prometheus in a seperate namespace:
+```sh
+$ helm install prometheus \
+  --create-namespace \
+  --namespace=prometheus \
+  prometheus-community/kube-prometheus-stack
+```
+
+Verify installation:
+```sh
+kubectl --namespace prometheus get pods -l "release=prometheus"
+```
+
+### Accessing Grafana
+You can access the Grafana dashboard by portforwarding to the service:
+```sh
+$ kubectl -n prometheus port-forward svc/prometheus-grafana 8000:80
+```
+The default credentials are:
+| Username | Password |
+| ------ | ------ |
+| admin | prom-operator |
+
+
+## Installing Cert-Manager
+Add the required helm repository:
+```sh
+$ helm repo add https://charts.jetstack.io
+```
+
+Install cert manager:
+```sh
+$ helm install \
   cert-manager jetstack/cert-manager \
   --create-namespace \
   --namespace cert-manager \
   --version v1.1.0 \
   --set installCRDs=true
+```
+
+Verify installation:
+```sh
+kubectl --namespace prometheus get pods -l "release=prometheus"
+```
 
 # Installing Application
 export NAMESPACE=sc
