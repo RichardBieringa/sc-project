@@ -21,11 +21,11 @@ spec:
           port:
             number: 80
       {{- if .Values.global.canary.enabled }}
-        weight: 75
+        weight: 50
       - destination:
-          host: {{ include "frontend.fullname" . }}-canary
+          host: {{ include "frontend.fullname" . }}
           subset: canary
           port:
             number: 80
-        weight: 25
+        weight: 50
       {{- end }}
