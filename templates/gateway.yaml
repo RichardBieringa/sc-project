@@ -21,9 +21,7 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      # credentialName: {{ .Values.global.tls.certName }}
-      privateKey: /etc/istio/ingressgateway-certs/tls.key
-      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      credentialName: {{ .Values.global.tls.certName }}
     hosts:
       - "richardbieringa.live"
   {{- end }}
