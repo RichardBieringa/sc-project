@@ -1,4 +1,7 @@
 global:
+  canary:
+    enabled: false
+    tag: "2.0.0"
   tls:
     enabled: true
     email: richardbieringa@gmail.com

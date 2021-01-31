@@ -17,20 +17,15 @@ spec:
       route:
       - destination:
           host: {{ include "frontend.fullname" . }}
+          subset: live
           port:
             number: 80
-  # {{- if .Values.global.tls.enabled }}
-  # tls:
-  #   - name: frontend-tls-route
-  #     match:
-  #     - port: 443
-  #       sniHosts:
-  #         {{- range .Values.global.tls.dnsNames }}
-  #         - {{ . | quote }}
-  #         {{- end }}
-  #     route:
-  #     - destination:
-  #         host: {{ include "frontend.fullname" . }}
-  #         port:
-  #           number: 443
-  # {{- end }}
+      {{- if .Values.global.canary.enabled }}
+        weight: 75
+      - destination:
+          host: {{ include "frontend.fullname" . }}-canary
+          subset: canary
+          port:
+            number: 80
+        weight: 25
+      {{- end }}

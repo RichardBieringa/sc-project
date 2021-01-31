@@ -1,7 +1,8 @@
+{{- if .Values.global.canary.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "frontend.fullname" . }}
+  name: {{ include "frontend.fullname" . }}-canary
   labels:
     {{- include "frontend.labels" . | nindent 4 }}
 spec:
@@ -19,12 +20,12 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        version: live
+        version: canary
         {{- include "frontend.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.global.canary.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -58,3 +59,4 @@ spec:
                 path: config.json
               - key: nginx.conf
                 path: nginx.conf
+{{- end }}

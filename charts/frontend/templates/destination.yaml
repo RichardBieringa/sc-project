@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "frontend.fullname" . }}
+spec:
+  host: {{ include "frontend.fullname" . }}
+  subsets:
+  - name: live
+    labels:
+      version: live
+  - name: canary
+    labels:
+      version: canary
