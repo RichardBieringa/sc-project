@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "frontend.fullname" . }}
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - "richardbieringa.live"
+  gateways:
+    - {{ .Release.Name }}-gateway
+  http:
+    - name: frontend-http-route
+      match:
+      - uri:
+          prefix: /
+      route:
+      - destination:
+          host: {{ include "frontend.fullname" . }}
+          port:
+            number: 80
+  # {{- if .Values.global.tls.enabled }}
+  # tls:
+  #   - name: frontend-tls-route
+  #     match:
+  #     - port: 443
+  #       sniHosts:
+  #         {{- range .Values.global.tls.dnsNames }}
+  #         - {{ . | quote }}
+  #         {{- end }}
+  #     route:
+  #     - destination:
+  #         host: {{ include "frontend.fullname" . }}
+  #         port:
+  #           number: 443
+  # {{- end }}

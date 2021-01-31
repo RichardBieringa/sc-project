@@ -1,0 +1,26 @@
+global:
+  tls:
+    enabled: true
+    email: richardbieringa@gmail.com
+    certName: ingress-cert
+    namespace: istio-system
+    cloudFlareAPIToken: M0qxSgZbgyv9nu-K-y7JL4_y0FmE1PexyRp1QvJX
+    dnsNames:
+      - richardbieringa.live
+
+postgresql:
+  postgresqlUsername: software-containerization
+  postgresqlPassword: super-secret-password
+  postgresqlDatabase: sc-users
+
+api:
+  image:
+    tag: "1.0.1"
+  dbConfig:
+    DB_USER: software-containerization
+    DB_PASSWORD: super-secret-password
+    DB_NAME: sc-users
+
+frontend:
+  image:
+    tag: "1.1.0"

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.global.tls.certName | quote }}
+  namespace: {{ .Values.global.tls.namespace | quote }}
+spec:
+  secretName: {{ .Values.global.tls.certName | quote }}
+  dnsNames:
+    {{- range .Values.global.tls.dnsNames }}
+    - {{ . | quote }}
+    {{- end }}
+  issuerRef:
+    name: {{ .Release.Name}}-letsencrypt
