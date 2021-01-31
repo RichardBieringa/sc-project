@@ -175,11 +175,49 @@ $ kubectl label namespace $NAMESPACE istio-injection=enabled
 
 Install the application:
 ```sh
-helm install $RELEASE --namespace=$NAMESPACE $PWD
+$ helm install $RELEASE --namespace=$NAMESPACE $PWD
 ```
 
 ## Configuring the  application
 The application can be configured by customizing the [values.yaml](./values.yaml) file. In here you can change among others the ```replication``` settings, ```horizontal pod autoscaling ``` settings or ```TLS``` configuration.
+
+### Scaling deployments
+In order to scale deployments you can change the values.yaml described above. In this file you will find the services and their replicaCounts variables. By changing this (ensuring hpa is off) you can statically scale deployments to the desired count. An example would be to set ```api.replicaCount``` to ```2``` and ```api.autoscaling.enabled``` to false.
+
+Change the values and apply the changes with:
+```sh
+$ helm upgrade $RELEASE $PWD
+```
+
+
+### Autoscaling deployments
+It is also possible to apply horizontal pod autoscaling on the deployments. If this setting is enabled in the values.yaml configuration file you can scale the deployments based on load. Enable hpa by for example changing ```api.autoscaling.enabled``` to ```true```.
+
+Change the values and apply the changes with:
+```sh
+$ helm upgrade $RELEASE $PWD
+```
+
+### Deployment rollout
+In order to upgrade the application through a deployment rollout you can change the deployment manifest of any of the deployements. An example would be to change the image version of the API, which will cause a deployment rollout. You can do this by changing the ```api.image.tag``` value to any valid tag. After applying this with Helm a deployment rollout will occur.
+
+Change the values and apply the changes with:
+```sh
+$ helm upgrade $RELEASE $PWD
+```
+### Canary deployment
+In order to do a canary deployment you can use the preconfigured canary deployment in the project's chart. In order to use this canary deployment you first have to enable the canary deployment by setting ```canary.enabled``` in values.yaml to ```true```. This will create an extra deployment for the Front End with a canary label. It will also configure the [Virtual Service](./charts/frontend/templates/virtualservice.yaml) to split traffic equally between the live deployment and the canary deployment. Like everything in this project this acts as an example, a canary deployment would normally have a much lower traffic distribution, but this makes it easier to see the changes.
+
+Perform the steps above and apply the changes with:
+```sh
+$ helm upgrade $RELEASE $PWD
+```
+
+### Uninstalling the application
+If you want to uninstall everything that the helm chart has created you are able to with a single command:
+```sh
+$ helm uninstall $RELEASE
+```
 
 ## Accessing Grafana
 You can access the Grafana dashboard by portforwarding to the service:
