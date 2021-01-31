@@ -10,13 +10,13 @@ global:
   # This token is for the domain specified below and is disabled once this repository is public
   # To use it enter a valid domain, set the NS to CloudFlare and create a token according to the cert-manager documentation
   tls:
-    enabled: true
-    email: richardbieringa@gmail.com
+    enabled: false
+    email: EMAIL_ADDRESS@DOMAIN.com
     certName: ingress-cert
     namespace: istio-system
-    cloudFlareAPIToken: M0qxSgZbgyv9nu-K-y7JL4_y0FmE1PexyRp1QvJX
+    cloudFlareAPIToken: ENTER_CLOUDFLARE_API_TOKEN
     dnsNames:
-      - richardbieringa.live
+      - DNS_NAMES
 
 # Sets the Values for the Postgres chart
 postgresql:

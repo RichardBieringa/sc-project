@@ -10,19 +10,32 @@ The following table lists all the requirements as specified by the project on th
 
 | TASKS | SOLUTION |
 | ------ | ------ |
-| Create a Deployment/Statefulset, a Service and a Persistent Volume, Persistent Volume Claim for a database of your choice. You can use a pre-built docker image for this database, or a pre-built Helm chart that you package as a sub.chart in your chart. Ensure that the Service exposed by the database is such that it can be accessed by the REST API, but not by users outside of the cluster. Ensure that the configuration of the database makes use of ConfigMaps and Secrets appropriately. | [DB Chart](./charts/postgresql-10.2.6.tgz) |
-| Create a deployment for a REST API of your choice, that uses the database. It is expected that you create your own Dockerfile for this image. Ensure that the application can scale horizontally. Create an appropriate type of Service such that the REST API can be accessed by the Web Application. Depending on where the Web Application rune, this might require the Web API to be exposed outside of the cluster. | [REST API Chart](./charts/api) |
-| Create a Deployment for a Web application of your choice, that uses the REST API. It is expected that you create your own Dockerfile for this image. Ensure that the application can scale horizontally. Create an appropriate type of Service/Ingress/API Gateway, such that the application can be accessed by users outside of the cluster.| [Web Application Chart](./charts/frontend) |
-| Configure TLS for the web application. You can use self-signed certificates or certificates signed by a self-made certificate authority. You can use cert-manager and/or openssl to generate the certificates. Ensure that if the REST API is accessible outside of the Cluster, it is running on https as well. Exposing http endpoints that redirect to https is fine.| [cert-manager](installing-cert-manager) [Cert](./templates/certificate.yaml) [Issuer](./templates/issuer.yaml) |
+| Create a Deployment/Statefulset, a Service and a Persistent Volume, Persistent Volume Claim for a database of your choice. You can use a pre-built docker image for this database, or a pre-built Helm chart that you package as a sub.chart in your chart. Ensure that the Service exposed by the database is such that it can be accessed by the REST API, but not by users outside of the cluster. Ensure that the configuration of the database makes use of ConfigMaps and Secrets appropriately. | [DB Chart](./charts/postgresql-10.2.6.tgz) & [Helm Values](./charts/values.yaml) |
+| Create a deployment for a REST API of your choice, that uses the database. It is expected that you create your own Dockerfile for this image. Ensure that the application can scale horizontally. Create an appropriate type of Service such that the REST API can be accessed by the Web Application. Depending on where the Web Application rune, this might require the Web API to be exposed outside of the cluster. | [REST API Chart](./charts/api) & [Helm Values](./charts/values.yaml) |
+| Create a Deployment for a Web application of your choice, that uses the REST API. It is expected that you create your own Dockerfile for this image. Ensure that the application can scale horizontally. Create an appropriate type of Service/Ingress/API Gateway, such that the application can be accessed by users outside of the cluster.| [Web Application Chart](./charts/frontend) & [Helm Values](./charts/values.yaml) |
+| Configure TLS for the web application. You can use self-signed certificates or certificates signed by a self-made certificate authority. You can use cert-manager and/or openssl to generate the certificates. Ensure that if the REST API is accessible outside of the Cluster, it is running on https as well. Exposing http endpoints that redirect to https is fine.| [cert-manager](installing-cert-manager) & [Cert](./templates/certificate.yaml) &  [Issuer](./templates/issuer.yaml) |
 | Configure ServiceMesh (Istio). If you use the Istio Ingress Gateway, it's ok not to configure Kubernetes NGINX Ingress as it replaces it.| [Install Istio](installing-istio) |
-| Configure application monitoring with Prometheus. In the presentation, you need to show how you query Prometheus. | [Install](#installing-prometheus) [Query](#querying-in-grafana) |
+| Configure application monitoring with Prometheus. In the presentation, you need to show how you query Prometheus. | [Install](#installing-prometheus) & [Query](#querying-in-grafana) |
 | Run the Application on Google Cloud Platform. | [Create GKE Cluster](#creating-the-gke-cluster) |
 
 
 ## Requirements
-[gcp account](https://console.cloud.google.com/?hl=nl)
-[gcloud cli](https://cloud.google.com/sdk/gcloud)
-[helm](https://helm.sh/)
+Below are the requirements in order to install the application and provision a cluster according to  the  specifications.
+
+| Requirement | Description |
+| ------ | ------ |
+| [gcp account](https://console.cloud.google.com/?hl=nl) | To use GCP |
+| [gcloud cli](https://cloud.google.com/sdk/gcloud)  | To  provision GKE cluster |
+| [helm](https://helm.sh/) | To install the application & dependencies  |
+
+### Container images used
+The table below contain the references to the container images used for this project.
+
+| Requirement | Description |
+| ------ | ------ |
+| Front End | [Docker Hub](https://hub.docker.com/repository/docker/richardbieringa/sc-frontend) |
+| REST API | [Docker Hub](https://hub.docker.com/repository/docker/richardbieringa/sc-rest-api) |
+
 
 ### Helm repositories
 
@@ -40,7 +53,7 @@ $ helm repo add https://charts.bitnami.com/bitnami
 $ helm repo add https://prometheus-community.github.io/helm-charts
 ```
 
-
+## Installing pre-requisites
 ### Creating the GKE Cluster
 
 ```sh
@@ -124,21 +137,6 @@ Verify installation:
 kubectl --namespace prometheus get pods -l "release=prometheus"
 ```
 
-### Accessing Grafana
-You can access the Grafana dashboard by portforwarding to the service:
-```sh
-$ kubectl -n prometheus port-forward svc/prometheus-grafana 8000:80
-```
-The default credentials are:
-| Username | Password |
-| ------ | ------ |
-| admin | prom-operator |
-
-### Querying in Grafana
-Follow the steps above to get into Grafana and proceed to go to the "Explore" section. From here you can run queries and access Prometheus metrics such as ```prometheus_http_requests_total```.
-
-![Query Example](./images/query.png?raw=true)
-
 ## Installing Cert-Manager
 Add the required helm repository:
 ```sh
@@ -160,8 +158,9 @@ Verify installation:
 kubectl --namespace prometheus get pods -l "release=prometheus"
 ```
 
-# Installing Application
+## Installing Application
 
+### Installation using Helm
 Create a namespace for the application:
 ```sh
 $ export RELEASE=sc
@@ -177,4 +176,23 @@ $ kubectl label namespace $NAMESPACE istio-injection=enabled
 Install the application:
 ```sh
 helm install $RELEASE --namespace=$NAMESPACE $PWD
+```
+
+## Configuring the  application
+The application can be configured by customizing the [values.yaml](./values.yaml) file. In here you can change among others the ```replication``` settings, ```horizontal pod autoscaling ``` settings or ```TLS``` configuration.
+
+## Accessing Grafana
+You can access the Grafana dashboard by portforwarding to the service:
+```sh
+$ kubectl -n prometheus port-forward svc/prometheus-grafana 8000:80
+```
+The default credentials are:
+| Username | Password |
+| ------ | ------ |
+| admin | prom-operator |
+
+### Querying in Grafana
+Follow the steps above to get into Grafana and proceed to go to the "Explore" section. From here you can run queries and access Prometheus metrics such as ```prometheus_http_requests_total```.
+
+![Query Example](./images/query.png?raw=true)
 ```
