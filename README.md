@@ -206,7 +206,7 @@ Change the values and apply the changes with:
 $ helm upgrade $RELEASE $PWD
 ```
 ### Canary deployment
-In order to do a canary deployment you can use the preconfigured canary deployment in the project's chart. In order to use this canary deployment you first have to enable the canary deployment by setting ```canary.enabled``` in values.yaml to ```true```. This will create an extra deployment for the Front End with a canary label. It will also configure the [Virtual Service](./charts/frontend/templates/virtualservice.yaml) to split traffic equally between the live deployment and the canary deployment. Like everything in this project this acts as an example, a canary deployment would normally have a much lower traffic distribution, but this makes it easier to see the changes.
+In order to do a canary deployment you can use the preconfigured canary deployment in the project's chart. In order to use this canary deployment you first have to enable the canary deployment by setting ```global.canary.enabled``` in values.yaml to ```true```. This will create an extra deployment for the Front End with a canary label and an image tag that is set with ```global.canary.tag```. It will also configure the [Virtual Service](./charts/frontend/templates/virtualservice.yaml) to split traffic equally between the live deployment and the canary deployment. Like everything in this project this acts as an example, a canary deployment would normally have a much lower traffic distribution, but this makes it easier to see the changes.
 
 Perform the steps above and apply the changes with:
 ```sh
